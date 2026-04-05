@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-import models, schemas
+
+import models
+import schemas
 
 
 def get_products(db: Session, skip: int = 0, limit: int = 100):
@@ -18,11 +20,11 @@ def create_product(db: Session, product: schemas.ProductCreate):
     return db_product
 
 
-def update_product(db: Session, product_id: int, product: schemas.ProductCreate):
+def update_product(db: Session, product_id: int, product: schemas.ProductUpdate):
     db_product = get_product(db, product_id)
     if not db_product:
         return None
-    for key, value in product.model_dump().items():
+    for key, value in product.model_dump(exclude_unset=True, exclude_none=True).items():
         setattr(db_product, key, value)
     db.commit()
     db.refresh(db_product)

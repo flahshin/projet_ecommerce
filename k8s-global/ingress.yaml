@@ -4,15 +4,14 @@ metadata:
   name: ecommerce-ingress
   namespace: ecommerce
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
-    - host: ecommerce.local      # ← adapter selon votre DNS / /etc/hosts
+    - host: ecommerce.local
       http:
         paths:
-          # Redirection vers le product-service
           - path: /api/products(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -20,8 +19,6 @@ spec:
                 name: product-service
                 port:
                   number: 8000
-
-          # Redirection vers le order-service
           - path: /api/orders(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -29,9 +26,7 @@ spec:
                 name: order-service
                 port:
                   number: 8001
-
-          # Frontend (optionnel)
-          - path: /(/|$)(.*)
+          - path: /()(.*)
             pathType: ImplementationSpecific
             backend:
               service:

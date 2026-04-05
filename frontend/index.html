@@ -28,7 +28,6 @@
       min-height: 100vh;
     }
 
-    /* NAV */
     nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -49,17 +48,11 @@
     nav button:hover, nav button.active { background: var(--accent); color: #fff; }
     .cart-badge { background: var(--accent2); color: #fff; border-radius: 99px; padding: 0 6px; font-size: .75rem; margin-left: 4px; }
 
-    /* LAYOUT */
     main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
-    /* SECTIONS */
     .section { display: none; }
     .section.active { display: block; }
-
     h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.4rem; }
     .subtitle { color: var(--muted); margin-bottom: 2rem; }
-
-    /* CARDS GRID */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
 
     .card {
@@ -84,7 +77,6 @@
     .card .price { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-bottom: .3rem; }
     .card .stock { font-size: .8rem; color: var(--muted); margin-bottom: 1rem; }
 
-    /* BUTTONS */
     .btn {
       display: inline-flex; align-items: center; gap: .4rem;
       padding: .55rem 1.2rem; border-radius: 8px; border: none;
@@ -99,7 +91,6 @@
     .btn:disabled { opacity: .4; cursor: not-allowed; }
     .btn-sm { padding: .3rem .7rem; font-size: .8rem; }
 
-    /* CART PANEL */
     .cart-panel {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem;
@@ -111,7 +102,6 @@
     .cart-item:last-child { border-bottom: none; }
     .cart-total { text-align: right; font-size: 1.3rem; font-weight: 800; margin-top: 1rem; color: var(--accent); }
 
-    /* FORM */
     .form-group { margin-bottom: 1rem; }
     label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
     input, select, textarea {
@@ -122,7 +112,6 @@
     input:focus, select:focus { outline: none; border-color: var(--accent); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-    /* ORDERS TABLE */
     .orders-list { display: flex; flex-direction: column; gap: 1rem; }
     .order-card {
       background: var(--surface); border: 1px solid var(--border);
@@ -139,7 +128,6 @@
     .status-delivered { background: rgba(76,175,135,0.35); color: #6fffc4; }
     .status-cancelled { background: rgba(252,92,125,0.2); color: var(--accent2); }
 
-    /* TOAST */
     #toast {
       position: fixed; bottom: 2rem; right: 2rem;
       background: var(--surface2); border: 1px solid var(--border);
@@ -151,7 +139,6 @@
     #toast.success { border-color: var(--success); color: var(--success); }
     #toast.error   { border-color: var(--accent2); color: var(--accent2); }
 
-    /* LOADER */
     .loader { text-align: center; padding: 3rem; color: var(--muted); }
     .spinner {
       width: 40px; height: 40px; border: 3px solid var(--border);
@@ -160,11 +147,9 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* EMPTY */
     .empty { text-align: center; padding: 3rem; color: var(--muted); }
     .empty-icon { font-size: 3rem; margin-bottom: .5rem; }
 
-    /* API STATUS */
     .api-status { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
     .api-chip {
       display: flex; align-items: center; gap: .5rem;
@@ -182,20 +167,18 @@
 
 <nav>
   <div class="logo">Shop<span>Micro</span></div>
-  <button class="active" onclick="showSection('products')">🛍️ Produits</button>
-  <button onclick="showSection('cart')">🛒 Panier <span class="cart-badge" id="cart-count">0</span></button>
-  <button onclick="showSection('orders')">📦 Commandes</button>
-  <button onclick="showSection('admin')">⚙️ Admin</button>
+  <button class="active" onclick="showSection('products', event)">🛍️ Produits</button>
+  <button onclick="showSection('cart', event)">🛒 Panier <span class="cart-badge" id="cart-count">0</span></button>
+  <button onclick="showSection('orders', event)">📦 Commandes</button>
+  <button onclick="showSection('admin', event)">⚙️ Admin</button>
 </nav>
 
 <main>
-  <!-- API STATUS -->
   <div class="api-status">
     <div class="api-chip"><div class="dot loading" id="dot-products"></div> Product Service</div>
     <div class="api-chip"><div class="dot loading" id="dot-orders"></div> Order Service</div>
   </div>
 
-  <!-- PRODUCTS -->
   <div class="section active" id="section-products">
     <h1>Catalogue</h1>
     <p class="subtitle">Parcourez nos produits et ajoutez-les à votre panier</p>
@@ -204,47 +187,38 @@
     </div>
   </div>
 
-  <!-- CART -->
   <div class="section" id="section-cart">
     <h1>Mon Panier</h1>
     <p class="subtitle">Vérifiez votre sélection avant de commander</p>
     <div id="cart-content"></div>
   </div>
 
-  <!-- ORDERS -->
   <div class="section" id="section-orders">
     <h1>Mes Commandes</h1>
     <p class="subtitle">Historique et suivi de vos commandes</p>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
-      <button class="btn btn-secondary btn-sm" onclick="loadOrders()">🔄 Actualiser</button>
-    </div>
-    <div class="orders-list" id="orders-list">
-      <div class="loader"><div class="spinner"></div>Chargement…</div>
-    </div>
+    <div class="orders-list" id="orders-list"></div>
   </div>
 
-  <!-- ADMIN -->
   <div class="section" id="section-admin">
-    <h1>Administration</h1>
-    <p class="subtitle">Ajouter un nouveau produit au catalogue</p>
-    <div class="card" style="max-width:520px;">
-      <h3 style="margin-bottom:1.2rem;">➕ Nouveau Produit</h3>
+    <h1>Ajouter un produit</h1>
+    <p class="subtitle">Panneau d’administration rapide</p>
+    <div class="card" style="max-width:720px;">
       <div class="form-group">
         <label>Nom du produit</label>
-        <input id="new-name" placeholder="Ex: Casque Audio Pro" />
+        <input id="new-name" placeholder="Ex. Casque gaming" />
       </div>
       <div class="form-group">
         <label>Description</label>
-        <input id="new-desc" placeholder="Brève description…" />
+        <textarea id="new-desc" rows="3" placeholder="Description du produit"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Prix (€)</label>
-          <input id="new-price" type="number" step="0.01" placeholder="0.00" />
+          <input id="new-price" type="number" min="0" step="0.01" />
         </div>
         <div class="form-group">
-          <label>Stock initial</label>
-          <input id="new-stock" type="number" placeholder="0" />
+          <label>Stock</label>
+          <input id="new-stock" type="number" min="0" step="1" />
         </div>
       </div>
       <button class="btn btn-primary" onclick="createProduct()" style="width:100%;margin-top:.5rem;">
@@ -254,8 +228,7 @@
   </div>
 </main>
 
-<!-- CHECKOUT MODAL -->
-<div id="checkout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;">
+<div id="checkout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;">
   <div class="card" style="max-width:480px;width:90%;margin:0 auto;">
     <h3 style="margin-bottom:1.2rem;">✅ Valider la commande</h3>
     <div class="form-group">
@@ -276,21 +249,13 @@
 <div id="toast"></div>
 
 <script>
-// ===================== CONFIG =====================
-// En local : les services tournent sur ces ports
-// En Kubernetes : tout passe par l'Ingress sur /api/...
-const PRODUCT_API = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : '/api/products';
-const ORDER_API = window.location.hostname === 'localhost'
-  ? 'http://localhost:8001'
-  : '/api/orders';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const PRODUCT_API = isLocal ? 'http://localhost:8000/products' : '/api/products';
+const ORDER_API = isLocal ? 'http://localhost:8001/orders' : '/api/orders';
 
-// ===================== STATE =====================
-let cart = [];   // [{ product, quantity }]
+let cart = [];
 let products = [];
 
-// ===================== UTILS =====================
 function toast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -298,11 +263,13 @@ function toast(msg, type = 'success') {
   setTimeout(() => t.className = '', 3000);
 }
 
-function showSection(name) {
+function showSection(name, evt = null) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (evt?.target) {
+    evt.target.classList.add('active');
+  }
   if (name === 'products') loadProducts();
   if (name === 'orders') loadOrders();
   if (name === 'cart') renderCart();
@@ -318,10 +285,10 @@ function setDot(id, status) {
   dot.className = 'dot ' + status;
 }
 
-// ===================== PRODUCTS =====================
 async function loadProducts() {
   try {
-    const res = await fetch(`${PRODUCT_API}/products`);
+    const res = await fetch(PRODUCT_API);
+    if (!res.ok) throw new Error('Product service error');
     products = await res.json();
     setDot('dot-products', 'ok');
     renderProducts();
@@ -346,11 +313,11 @@ function renderProducts() {
       <div class="card">
         <span class="card-badge ${badgeClass}">${badgeText}</span>
         <h3>${p.name}</h3>
-        <p>${p.description}</p>
-        <div class="price">${p.price.toFixed(2)} €</div>
+        <p>${p.description ?? ''}</p>
+        <div class="price">${Number(p.price).toFixed(2)} €</div>
         <div class="stock">Stock : ${p.stock} unité(s)</div>
         ${p.stock > 0
-          ? `<button class="btn btn-primary" style="width:100%;" onclick="addToCart('${p.id}')">
+          ? `<button class="btn btn-primary" style="width:100%;" onclick="addToCart(${p.id})">
               ${inCart ? '✅ Ajouté (' + inCart.quantity + ')' : '+ Ajouter au panier'}
              </button>`
           : `<button class="btn btn-danger" disabled style="width:100%;">Indisponible</button>`
@@ -362,6 +329,7 @@ function renderProducts() {
 function addToCart(productId) {
   const product = products.find(p => p.id === productId);
   const existing = cart.find(c => c.product.id === productId);
+  if (!product) return;
   if (existing) {
     if (existing.quantity >= product.stock) { toast('Stock maximum atteint', 'error'); return; }
     existing.quantity++;
@@ -373,7 +341,6 @@ function addToCart(productId) {
   renderProducts();
 }
 
-// ===================== CART =====================
 function renderCart() {
   const div = document.getElementById('cart-content');
   if (!cart.length) {
@@ -387,11 +354,11 @@ function renderCart() {
         <div class="cart-item">
           <div>
             <strong>${item.product.name}</strong>
-            <div style="color:var(--muted);font-size:.85rem;">${item.product.price.toFixed(2)} € × ${item.quantity}</div>
+            <div style="color:var(--muted);font-size:.85rem;">${Number(item.product.price).toFixed(2)} € × ${item.quantity}</div>
           </div>
           <div style="display:flex;align-items:center;gap:.8rem;">
             <strong>${(item.product.price * item.quantity).toFixed(2)} €</strong>
-            <button class="btn btn-danger btn-sm" onclick="removeFromCart('${item.product.id}')">✕</button>
+            <button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.product.id})">✕</button>
           </div>
         </div>`).join('')}
       <div class="cart-total">Total : ${total.toFixed(2)} €</div>
@@ -408,7 +375,6 @@ function removeFromCart(productId) {
   renderProducts();
 }
 
-// ===================== CHECKOUT =====================
 function openCheckout() {
   document.getElementById('checkout-modal').style.display = 'flex';
 }
@@ -428,41 +394,47 @@ async function submitOrder() {
   };
 
   try {
-    const res = await fetch(`${ORDER_API}/orders`, {
+    const res = await fetch(ORDER_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    setDot('dot-orders', 'ok');
     if (!res.ok) {
-      const err = await res.json();
-      toast(err.detail || 'Erreur commande', 'error'); return;
+      const err = await res.json().catch(() => ({ detail: 'Erreur commande' }));
+      setDot('dot-orders', 'err');
+      toast(err.detail || 'Erreur commande', 'error');
+      return;
     }
+    setDot('dot-orders', 'ok');
     cart = [];
     updateCartBadge();
     closeCheckout();
     toast('Commande validée avec succès ! 🎉');
-    showSection('orders');
-    loadProducts();
+    await loadProducts();
+    await loadOrders();
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('nav button')[2].classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-orders').classList.add('active');
   } catch {
     setDot('dot-orders', 'err');
     toast('Order service indisponible', 'error');
   }
 }
 
-// ===================== ORDERS =====================
 async function loadOrders() {
   const list = document.getElementById('orders-list');
   list.innerHTML = '<div class="loader"><div class="spinner"></div>Chargement…</div>';
   try {
-    const res = await fetch(`${ORDER_API}/orders`);
+    const res = await fetch(ORDER_API);
+    if (!res.ok) throw new Error('Order service error');
     const orders = await res.json();
     setDot('dot-orders', 'ok');
     if (!orders.length) {
       list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Aucune commande pour le moment</div>';
       return;
     }
-    list.innerHTML = orders.reverse().map(o => `
+    list.innerHTML = orders.slice().reverse().map(o => `
       <div class="order-card">
         <div class="order-header">
           <div>
@@ -472,12 +444,12 @@ async function loadOrders() {
           <span class="status-badge status-${o.status}">${o.status}</span>
         </div>
         <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem;">
-          ${o.items.map(i => `${i.quantity}× ${i.product_id}`).join(' &nbsp;·&nbsp; ')}
+          ${(o.items || []).map(i => `${i.quantity}× produit ${i.product_id}`).join(' &nbsp;·&nbsp; ')}
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong style="color:var(--accent)">${o.total_price?.toFixed(2)} €</strong>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+          <strong style="color:var(--accent)">${Number(o.total_price ?? 0).toFixed(2)} €</strong>
           <div style="display:flex;gap:.5rem;">
-            <select class="btn btn-secondary btn-sm" onchange="updateStatus('${o.id}', this.value)" style="padding:.3rem .5rem;">
+            <select class="btn btn-secondary btn-sm" onchange="updateStatus(${o.id}, this.value)" style="padding:.3rem .5rem;">
               ${['pending','confirmed','shipped','delivered','cancelled'].map(s =>
                 `<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
             </select>
@@ -492,27 +464,33 @@ async function loadOrders() {
 
 async function updateStatus(orderId, status) {
   try {
-    await fetch(`${ORDER_API}/orders/${orderId}/status`, {
+    const res = await fetch(`${ORDER_API}/${orderId}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Erreur mise à jour' }));
+      toast(err.detail || 'Erreur mise à jour', 'error');
+      return;
+    }
     toast(`Statut mis à jour → ${status}`);
     loadOrders();
-  } catch { toast('Erreur mise à jour', 'error'); }
+  } catch {
+    toast('Erreur mise à jour', 'error');
+  }
 }
 
-// ===================== ADMIN =====================
 async function createProduct() {
   const name  = document.getElementById('new-name').value.trim();
   const desc  = document.getElementById('new-desc').value.trim();
   const price = parseFloat(document.getElementById('new-price').value);
-  const stock = parseInt(document.getElementById('new-stock').value);
-  if (!name || !desc || isNaN(price) || isNaN(stock)) {
+  const stock = parseInt(document.getElementById('new-stock').value, 10);
+  if (!name || !desc || Number.isNaN(price) || Number.isNaN(stock)) {
     toast('Remplissez tous les champs', 'error'); return;
   }
   try {
-    const res = await fetch(`${PRODUCT_API}/products`, {
+    const res = await fetch(PRODUCT_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, description: desc, price, stock })
@@ -521,10 +499,11 @@ async function createProduct() {
     ['new-name','new-desc','new-price','new-stock'].forEach(id => document.getElementById(id).value = '');
     toast('Produit créé avec succès ✓');
     await loadProducts();
-  } catch { toast('Product service indisponible', 'error'); }
+  } catch {
+    toast('Product service indisponible', 'error');
+  }
 }
 
-// ===================== INIT =====================
 loadProducts();
 </script>
 </body>

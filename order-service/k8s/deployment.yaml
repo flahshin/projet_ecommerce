@@ -15,16 +15,18 @@ spec:
       labels:
         app: order-service
     spec:
-      serviceAccountName: order-service-sa   # RBAC : compte de service dédié
+      serviceAccountName: order-service-sa
       containers:
         - name: order-service
-          image: votre-dockerhub/order-service:latest   # ← remplacer par votre image
-          imagePullPolicy: Always
+          image: votre-dockerhub/order-service:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001
           env:
             - name: PRODUCT_SERVICE_URL
-              value: "http://product-service:8000"
+              value: "http://product-service.ecommerce.svc.cluster.local:8000"
+            - name: DATABASE_URL
+              value: "postgresql://shop:shop123@postgres-orders.ecommerce.svc.cluster.local:5432/orders_db"
           resources:
             requests:
               memory: "128Mi"

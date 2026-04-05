@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-import models, schemas
+
+import models
+import schemas
 
 
 def get_orders(db: Session, skip: int = 0, limit: int = 100):
@@ -10,14 +12,19 @@ def get_order(db: Session, order_id: int):
     return db.query(models.Order).filter(models.Order.id == order_id).first()
 
 
-def create_order(db: Session, order: schemas.OrderCreate, total: float):
-    items_data = [{"product_id": i.product_id, "quantity": i.quantity} for i in order.items]
+def create_order(
+    db: Session,
+    order: schemas.OrderCreate,
+    total: float,
+    items_data: list[dict],
+    status: str = "pending",
+):
     db_order = models.Order(
         customer_name=order.customer_name,
         customer_email=order.customer_email,
         items=items_data,
         total_price=round(total, 2),
-        status="pending"
+        status=status,
     )
     db.add(db_order)
     db.commit()

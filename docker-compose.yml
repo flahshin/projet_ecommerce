@@ -1,10 +1,42 @@
 services:
+  postgres-products:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: products_db
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop123
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d products_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-products-data:/var/lib/postgresql/data
+
+  postgres-orders:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop123
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d orders_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-orders-data:/var/lib/postgresql/data
+
   product-service:
     build: ./product-service
     ports:
       - "8000:8000"
     environment:
-      - ENV=development
+      ENV: development
+      DATABASE_URL: postgresql://shop:shop123@postgres-products:5432/products_db
+    depends_on:
+      postgres-products:
+        condition: service_healthy
     healthcheck:
       test:
         - CMD-SHELL
@@ -19,8 +51,11 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - PRODUCT_SERVICE_URL=http://product-service:8000
+      PRODUCT_SERVICE_URL: http://product-service:8000
+      DATABASE_URL: postgresql://shop:shop123@postgres-orders:5432/orders_db
     depends_on:
+      postgres-orders:
+        condition: service_healthy
       product-service:
         condition: service_healthy
     healthcheck:
@@ -37,5 +72,11 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - product-service
-      - order-service
+      product-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+
+volumes:
+  postgres-products-data:
+  postgres-orders-data:
