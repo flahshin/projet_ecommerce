@@ -99,17 +99,7 @@ sudo tee -a /etc/hosts
 
 Application : `http://ecommerce.local`
 
----
 
-<<<<<<< HEAD
-## 🔐 RBAC — Sécurité Kubernetes —
-=======
-## 🔐 Sécurité / RBAC
->>>>>>> b429136 (projet cube V2)
-
-Le namespace, les `ServiceAccount`, les `Role`, `RoleBinding` et le `ClusterRole` sont dans `k8s-global/rbac.yaml`.
-
----
 
 ## 🌐 API
 
