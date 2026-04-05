@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShopMicro — E-Commerce</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22223a;
+      --accent: #7c5cfc;
+      --accent2: #fc5c7d;
+      --text: #e8e8f0;
+      --muted: #888;
+      --success: #4caf87;
+      --warning: #f5a623;
+      --border: #2e2e44;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 60px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.4rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+    .logo span { color: var(--accent2); }
+    nav button {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 0.95rem; padding: 0.4rem 0.8rem;
+      border-radius: 8px; transition: all .2s;
+    }
+    nav button:hover, nav button.active { background: var(--accent); color: #fff; }
+    .cart-badge { background: var(--accent2); color: #fff; border-radius: 99px; padding: 0 6px; font-size: .75rem; margin-left: 4px; }
+
+    /* LAYOUT */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    /* SECTIONS */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+
+    /* CARDS GRID */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(124,92,252,0.15); }
+
+    .card-badge {
+      display: inline-block; font-size: .7rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px; margin-bottom: .5rem;
+      background: rgba(124,92,252,0.2); color: var(--accent);
+    }
+    .card-badge.low { background: rgba(245,166,35,0.2); color: var(--warning); }
+    .card-badge.out { background: rgba(252,92,125,0.2); color: var(--accent2); }
+
+    .card h3 { font-size: 1.1rem; margin-bottom: .3rem; }
+    .card p { color: var(--muted); font-size: .88rem; line-height: 1.5; margin-bottom: .8rem; }
+    .card .price { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-bottom: .3rem; }
+    .card .stock { font-size: .8rem; color: var(--muted); margin-bottom: 1rem; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .55rem 1.2rem; border-radius: 8px; border: none;
+      cursor: pointer; font-size: .9rem; font-weight: 600; transition: all .2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #6a4de8; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger { background: rgba(252,92,125,0.15); color: var(--accent2); border: 1px solid rgba(252,92,125,0.3); }
+    .btn-danger:hover { background: var(--accent2); color: #fff; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-sm { padding: .3rem .7rem; font-size: .8rem; }
+
+    /* CART PANEL */
+    .cart-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem;
+    }
+    .cart-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .7rem 0; border-bottom: 1px solid var(--border);
+    }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-total { text-align: right; font-size: 1.3rem; font-weight: 800; margin-top: 1rem; color: var(--accent); }
+
+    /* FORM */
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
+    input, select, textarea {
+      width: 100%; padding: .6rem .9rem; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+      font-size: .95rem; transition: border .2s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ORDERS TABLE */
+    .orders-list { display: flex; flex-direction: column; gap: 1rem; }
+    .order-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem 1.5rem;
+    }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7rem; }
+    .order-id { font-size: .75rem; color: var(--muted); font-family: monospace; }
+    .status-badge {
+      font-size: .75rem; font-weight: 700; padding: 2px 10px; border-radius: 99px;
+    }
+    .status-confirmed { background: rgba(76,175,135,0.2); color: var(--success); }
+    .status-pending   { background: rgba(245,166,35,0.2); color: var(--warning); }
+    .status-shipped   { background: rgba(124,92,252,0.2); color: var(--accent); }
+    .status-delivered { background: rgba(76,175,135,0.35); color: #6fffc4; }
+    .status-cancelled { background: rgba(252,92,125,0.2); color: var(--accent2); }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: .8rem 1.4rem;
+      font-size: .9rem; opacity: 0; transform: translateY(20px);
+      transition: all .3s; z-index: 9999; max-width: 320px;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error   { border-color: var(--accent2); color: var(--accent2); }
+
+    /* LOADER */
+    .loader { text-align: center; padding: 3rem; color: var(--muted); }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 3rem; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: .5rem; }
+
+    /* API STATUS */
+    .api-status { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .api-chip {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 99px; padding: .3rem .9rem; font-size: .8rem;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot.ok { background: var(--success); }
+    .dot.err { background: var(--accent2); }
+    .dot.loading { background: var(--warning); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Shop<span>Micro</span></div>
+  <button class="active" onclick="showSection('products')">🛍️ Produits</button>
+  <button onclick="showSection('cart')">🛒 Panier <span class="cart-badge" id="cart-count">0</span></button>
+  <button onclick="showSection('orders')">📦 Commandes</button>
+  <button onclick="showSection('admin')">⚙️ Admin</button>
+</nav>
+
+<main>
+  <!-- API STATUS -->
+  <div class="api-status">
+    <div class="api-chip"><div class="dot loading" id="dot-products"></div> Product Service</div>
+    <div class="api-chip"><div class="dot loading" id="dot-orders"></div> Order Service</div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="section active" id="section-products">
+    <h1>Catalogue</h1>
+    <p class="subtitle">Parcourez nos produits et ajoutez-les à votre panier</p>
+    <div class="grid" id="products-grid">
+      <div class="loader"><div class="spinner"></div>Chargement des produits…</div>
+    </div>
+  </div>
+
+  <!-- CART -->
+  <div class="section" id="section-cart">
+    <h1>Mon Panier</h1>
+    <p class="subtitle">Vérifiez votre sélection avant de commander</p>
+    <div id="cart-content"></div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="section" id="section-orders">
+    <h1>Mes Commandes</h1>
+    <p class="subtitle">Historique et suivi de vos commandes</p>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+      <button class="btn btn-secondary btn-sm" onclick="loadOrders()">🔄 Actualiser</button>
+    </div>
+    <div class="orders-list" id="orders-list">
+      <div class="loader"><div class="spinner"></div>Chargement…</div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="section" id="section-admin">
+    <h1>Administration</h1>
+    <p class="subtitle">Ajouter un nouveau produit au catalogue</p>
+    <div class="card" style="max-width:520px;">
+      <h3 style="margin-bottom:1.2rem;">➕ Nouveau Produit</h3>
+      <div class="form-group">
+        <label>Nom du produit</label>
+        <input id="new-name" placeholder="Ex: Casque Audio Pro" />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input id="new-desc" placeholder="Brève description…" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prix (€)</label>
+          <input id="new-price" type="number" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label>Stock initial</label>
+          <input id="new-stock" type="number" placeholder="0" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="createProduct()" style="width:100%;margin-top:.5rem;">
+        Créer le produit
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div class="card" style="max-width:480px;width:90%;margin:0 auto;">
+    <h3 style="margin-bottom:1.2rem;">✅ Valider la commande</h3>
+    <div class="form-group">
+      <label>Nom complet</label>
+      <input id="checkout-name" placeholder="Jean Dupont" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="checkout-email" type="email" placeholder="jean@email.com" />
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeCheckout()">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitOrder()">Commander</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===================== CONFIG =====================
+// En local : les services tournent sur ces ports
+// En Kubernetes : tout passe par l'Ingress sur /api/...
+const PRODUCT_API = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : '/api/products';
+const ORDER_API = window.location.hostname === 'localhost'
+  ? 'http://localhost:8001'
+  : '/api/orders';
+
+// ===================== STATE =====================
+let cart = [];   // [{ product, quantity }]
+let products = [];
+
+// ===================== UTILS =====================
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (name === 'products') loadProducts();
+  if (name === 'orders') loadOrders();
+  if (name === 'cart') renderCart();
+}
+
+function updateCartBadge() {
+  const count = cart.reduce((s, i) => s + i.quantity, 0);
+  document.getElementById('cart-count').textContent = count;
+}
+
+function setDot(id, status) {
+  const dot = document.getElementById(id);
+  dot.className = 'dot ' + status;
+}
+
+// ===================== PRODUCTS =====================
+async function loadProducts() {
+  try {
+    const res = await fetch(`${PRODUCT_API}/products`);
+    products = await res.json();
+    setDot('dot-products', 'ok');
+    renderProducts();
+  } catch {
+    setDot('dot-products', 'err');
+    document.getElementById('products-grid').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div>Product service indisponible</div>';
+  }
+}
+
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  if (!products.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">📦</div>Aucun produit</div>';
+    return;
+  }
+  grid.innerHTML = products.map(p => {
+    const inCart = cart.find(c => c.product.id === p.id);
+    const badgeClass = p.stock === 0 ? 'out' : p.stock < 10 ? 'low' : '';
+    const badgeText = p.stock === 0 ? 'Rupture' : p.stock < 10 ? 'Stock faible' : 'En stock';
+    return `
+      <div class="card">
+        <span class="card-badge ${badgeClass}">${badgeText}</span>
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <div class="price">${p.price.toFixed(2)} €</div>
+        <div class="stock">Stock : ${p.stock} unité(s)</div>
+        ${p.stock > 0
+          ? `<button class="btn btn-primary" style="width:100%;" onclick="addToCart('${p.id}')">
+              ${inCart ? '✅ Ajouté (' + inCart.quantity + ')' : '+ Ajouter au panier'}
+             </button>`
+          : `<button class="btn btn-danger" disabled style="width:100%;">Indisponible</button>`
+        }
+      </div>`;
+  }).join('');
+}
+
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+  const existing = cart.find(c => c.product.id === productId);
+  if (existing) {
+    if (existing.quantity >= product.stock) { toast('Stock maximum atteint', 'error'); return; }
+    existing.quantity++;
+  } else {
+    cart.push({ product, quantity: 1 });
+  }
+  updateCartBadge();
+  toast(`${product.name} ajouté au panier ✓`);
+  renderProducts();
+}
+
+// ===================== CART =====================
+function renderCart() {
+  const div = document.getElementById('cart-content');
+  if (!cart.length) {
+    div.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div>Votre panier est vide</div>';
+    return;
+  }
+  const total = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
+  div.innerHTML = `
+    <div class="cart-panel">
+      ${cart.map(item => `
+        <div class="cart-item">
+          <div>
+            <strong>${item.product.name}</strong>
+            <div style="color:var(--muted);font-size:.85rem;">${item.product.price.toFixed(2)} € × ${item.quantity}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.8rem;">
+            <strong>${(item.product.price * item.quantity).toFixed(2)} €</strong>
+            <button class="btn btn-danger btn-sm" onclick="removeFromCart('${item.product.id}')">✕</button>
+          </div>
+        </div>`).join('')}
+      <div class="cart-total">Total : ${total.toFixed(2)} €</div>
+    </div>
+    <button class="btn btn-primary" onclick="openCheckout()" style="padding:.8rem 2rem;font-size:1rem;">
+      Valider la commande →
+    </button>`;
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(c => c.product.id !== productId);
+  updateCartBadge();
+  renderCart();
+  renderProducts();
+}
+
+// ===================== CHECKOUT =====================
+function openCheckout() {
+  document.getElementById('checkout-modal').style.display = 'flex';
+}
+function closeCheckout() {
+  document.getElementById('checkout-modal').style.display = 'none';
+}
+
+async function submitOrder() {
+  const name = document.getElementById('checkout-name').value.trim();
+  const email = document.getElementById('checkout-email').value.trim();
+  if (!name || !email) { toast('Remplissez tous les champs', 'error'); return; }
+
+  const payload = {
+    customer_name: name,
+    customer_email: email,
+    items: cart.map(i => ({ product_id: i.product.id, quantity: i.quantity }))
+  };
+
+  try {
+    const res = await fetch(`${ORDER_API}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    setDot('dot-orders', 'ok');
+    if (!res.ok) {
+      const err = await res.json();
+      toast(err.detail || 'Erreur commande', 'error'); return;
+    }
+    cart = [];
+    updateCartBadge();
+    closeCheckout();
+    toast('Commande validée avec succès ! 🎉');
+    showSection('orders');
+    loadProducts();
+  } catch {
+    setDot('dot-orders', 'err');
+    toast('Order service indisponible', 'error');
+  }
+}
+
+// ===================== ORDERS =====================
+async function loadOrders() {
+  const list = document.getElementById('orders-list');
+  list.innerHTML = '<div class="loader"><div class="spinner"></div>Chargement…</div>';
+  try {
+    const res = await fetch(`${ORDER_API}/orders`);
+    const orders = await res.json();
+    setDot('dot-orders', 'ok');
+    if (!orders.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Aucune commande pour le moment</div>';
+      return;
+    }
+    list.innerHTML = orders.reverse().map(o => `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <strong>${o.customer_name}</strong>
+            <div class="order-id">#${o.id}</div>
+          </div>
+          <span class="status-badge status-${o.status}">${o.status}</span>
+        </div>
+        <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem;">
+          ${o.items.map(i => `${i.quantity}× ${i.product_id}`).join(' &nbsp;·&nbsp; ')}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="color:var(--accent)">${o.total_price?.toFixed(2)} €</strong>
+          <div style="display:flex;gap:.5rem;">
+            <select class="btn btn-secondary btn-sm" onchange="updateStatus('${o.id}', this.value)" style="padding:.3rem .5rem;">
+              ${['pending','confirmed','shipped','delivered','cancelled'].map(s =>
+                `<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch {
+    setDot('dot-orders', 'err');
+    list.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>Order service indisponible</div>';
+  }
+}
+
+async function updateStatus(orderId, status) {
+  try {
+    await fetch(`${ORDER_API}/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    toast(`Statut mis à jour → ${status}`);
+    loadOrders();
+  } catch { toast('Erreur mise à jour', 'error'); }
+}
+
+// ===================== ADMIN =====================
+async function createProduct() {
+  const name  = document.getElementById('new-name').value.trim();
+  const desc  = document.getElementById('new-desc').value.trim();
+  const price = parseFloat(document.getElementById('new-price').value);
+  const stock = parseInt(document.getElementById('new-stock').value);
+  if (!name || !desc || isNaN(price) || isNaN(stock)) {
+    toast('Remplissez tous les champs', 'error'); return;
+  }
+  try {
+    const res = await fetch(`${PRODUCT_API}/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description: desc, price, stock })
+    });
+    if (!res.ok) { toast('Erreur création', 'error'); return; }
+    ['new-name','new-desc','new-price','new-stock'].forEach(id => document.getElementById(id).value = '');
+    toast('Produit créé avec succès ✓');
+    await loadProducts();
+  } catch { toast('Product service indisponible', 'error'); }
+}
+
+// ===================== INIT =====================
+loadProducts();
+</script>
+</body>
+</html>

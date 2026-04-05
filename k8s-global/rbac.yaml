@@ -1,0 +1,128 @@
+# ============================================================
+# 1. Namespace
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ecommerce
+  labels:
+    name: ecommerce
+
+---
+# ============================================================
+# 2. ServiceAccounts (un par microservice)
+# ============================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: product-service-sa
+  namespace: ecommerce
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-service-sa
+  namespace: ecommerce
+
+---
+# ============================================================
+# 3. Role pour le product-service
+#    Droits : lecture des ConfigMaps et Secrets propres au service
+# ============================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: product-service-role
+  namespace: ecommerce
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: product-service-rolebinding
+  namespace: ecommerce
+subjects:
+  - kind: ServiceAccount
+    name: product-service-sa
+    namespace: ecommerce
+roleRef:
+  kind: Role
+  name: product-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ============================================================
+# 4. Role pour le order-service
+#    Droits : lecture des ConfigMaps et Secrets + accès endpoints
+# ============================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: order-service-role
+  namespace: ecommerce
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["endpoints", "services"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: order-service-rolebinding
+  namespace: ecommerce
+subjects:
+  - kind: ServiceAccount
+    name: order-service-sa
+    namespace: ecommerce
+roleRef:
+  kind: Role
+  name: order-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ============================================================
+# 5. ClusterRole en lecture seule pour monitoring (optionnel)
+# ============================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ecommerce-readonly
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ecommerce-readonly-binding
+subjects:
+  - kind: ServiceAccount
+    name: product-service-sa
+    namespace: ecommerce
+  - kind: ServiceAccount
+    name: order-service-sa
+    namespace: ecommerce
+roleRef:
+  kind: ClusterRole
+  name: ecommerce-readonly
+  apiGroup: rbac.authorization.k8s.io
