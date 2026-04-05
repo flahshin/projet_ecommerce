@@ -30,9 +30,7 @@ ecommerce-microservices/
 
 ---
 
-## 🚀 Étape 1 — Lancer en local (sans Kubernetes) — 10/20
-
-### Prérequis
+## 🚀 Étape 1 — Lancer en local
 - Docker + Docker Compose installés
 
 ```bash
@@ -66,7 +64,7 @@ docker push votre-dockerhub/frontend:latest
 
 ---
 
-## ☸️ Étape 3 — Déployer sur Kubernetes (Minikube) — 12/20
+## ☸️ Étape 3 — Déployer sur Kubernetes (Minikube) 
 
 ### Démarrer Minikube avec l'Ingress
 
@@ -106,7 +104,7 @@ L'application est accessible sur : http://ecommerce.local
 
 ---
 
-## 🔐 RBAC — Sécurité Kubernetes — 18/20
+## 🔐 RBAC — Sécurité Kubernetes —
 
 Le fichier `k8s-global/rbac.yaml` contient :
 
@@ -173,18 +171,6 @@ Le `order-service` appelle le `product-service` via HTTP interne :
 La variable d'environnement `PRODUCT_SERVICE_URL` configure l'URL :
 - **Docker Compose** : `http://product-service:8000`
 - **Kubernetes** : `http://product-service.ecommerce.svc.cluster.local:8000`
-
----
-
-## 📊 Barème visé
-
-| Fonctionnalité                              | Points |
-|---------------------------------------------|--------|
-| 1 service + Dockerfile + Kubernetes         | 10/20  |
-| Gateway Ingress (routage /api/...)          | 12/20  |
-| 2 services + communication inter-services   | 14/20  |
-| Base de données in-memory + full REST API   | 16/20  |
-| RBAC Kubernetes (Roles, ServiceAccounts)    | 18/20  |
 
 ---
 
