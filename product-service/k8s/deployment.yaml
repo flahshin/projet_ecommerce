@@ -18,7 +18,7 @@ spec:
       serviceAccountName: product-service-sa
       containers:
         - name: product-service
-          image: votre-dockerhub/product-service:latest
+          image: flahshin/product-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000

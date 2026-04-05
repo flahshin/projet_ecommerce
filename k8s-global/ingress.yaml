@@ -12,14 +12,14 @@ spec:
     - host: ecommerce.local
       http:
         paths:
-          - path: /api/products(/|$)(.*)
+          - path: /api(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
                 name: product-service
                 port:
                   number: 8000
-          - path: /api/orders(/|$)(.*)
+          - path: /api(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:

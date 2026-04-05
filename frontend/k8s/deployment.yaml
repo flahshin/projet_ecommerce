@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: votre-dockerhub/frontend:latest
+          image: flahshin/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

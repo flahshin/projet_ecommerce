@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
         - name: order-service
-          image: votre-dockerhub/order-service:latest
+          image: flahshin/order-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001
